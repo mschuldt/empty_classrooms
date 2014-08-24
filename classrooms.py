@@ -273,6 +273,13 @@ def sorted_classrooms(building_name = None):
     x.sort(key = lambda x: x[1])
     return x
 
+def classes_in_room(building, room):
+    ret = []
+    for c in get_classes_in(building):
+        if c.room == room:
+            ret.append(c)
+    return ret
+
 def find_class(classname):
     classname = classname.lower()
     results = []
