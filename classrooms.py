@@ -270,7 +270,7 @@ def sorted_classrooms(building_name = None):
         n = class_times.get(c.room, 0)
         class_times[c.room] = n + c.length
     x = list(class_times.iteritems())
-    x.sort(key = lambda x: x[0])
+    x.sort(key = lambda x: x[1])
     return x
 
 def find_class(classname):
