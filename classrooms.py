@@ -36,6 +36,7 @@ room_building_errors = []
 name_time_or_loc_errors = []
 unreasonably_long_classes = []
 sub_class_extraction_errors = []
+negative_times = []
 
 buildings = {} #maps building names to classrooms
 classes = []
@@ -100,9 +101,18 @@ class Class:
             AP_errors.append([f, cname, name, time])
             AP = s_AP
             #TODO
-        AP_p = True if e_AP == "P" else False
-        s_h, s_m = to_mil_time(s_h, s_m, AP_p)
-        e_h, e_m = to_mil_time(e_h, e_m, AP_p)
+        s_PM = e_PM = None
+        if e_AP == "P":
+            if int(s_h or 0) + int(s_m or 0)/60.0 > int(e_h or 0) + int(e_m or 0)/60.0:
+                s_PM = False
+                e_PM = True
+            else:
+                s_PM = e_PM = True
+
+        #AP_p = True if e_AP == "P" else False
+
+        s_h, s_m = to_mil_time(s_h, s_m, s_PM)
+        e_h, e_m = to_mil_time(e_h, e_m, e_PM)
         s = datetime.time(hour=s_h, minute=s_m, second=0, microsecond=0)
         e = datetime.time(hour=e_h, minute=e_m, second=0, microsecond=0)
         self.start_time = s
@@ -110,6 +120,8 @@ class Class:
         self.length = e_h + e_m/60.0 - s_h - s_m/60.0
         if self.length > 6:
             unreasonably_long_classes.append(self)
+        if self.length < 0:
+            negative_times.append(self)
         #parse location
         if (loc == "HEARSTGYMCTS"): loc = "HEARSTGYMCTS HEARSTGYMCTS"
         room_building = loc.split()
@@ -174,12 +186,14 @@ def extract_all():
     global buildings, classes
     global day_time_re_errors, room_building_errors, sub_class_extraction_errors
     global name_time_or_loc_errors, unreasonably_long_classes, extraction_errors
+    global negative_times
     day_time_re_errors = []
     room_building_errors = []
     name_time_or_loc_errors = []
     unreasonably_long_classes = []
     extraction_errors = []
     sub_class_extraction_errors = []
+    negative_times = []
     buildings = {} #maps building names to classrooms
     classes = []
     for f in files:
@@ -213,6 +227,7 @@ def errors():
     print("sub_class_extraction_errors: {}".format(len(sub_class_extraction_errors)))
     print("repeated_rooms: {}".format(len(repeated_rooms)))
     print("unreasonably_long_classes: {}".format(len(unreasonably_long_classes)))
+    print("negative_times: {}".format(len(negative_times)))
 
 def building_names():
     return buildings.keys()
