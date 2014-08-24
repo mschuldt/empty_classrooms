@@ -4,6 +4,8 @@ import re
 import datetime
 
 titles = []
+single_names = ["HEARSTGYMCTS","BECHTEL AUD", "WHEELER AUD"]
+
 def extract(filename):
     soup = bs4.BeautifulSoup(open(filename, "r").read())
     tables = soup.find_all("table")
@@ -123,7 +125,8 @@ class Class:
         if self.length < 0:
             negative_times.append(self)
         #parse location
-        if (loc == "HEARSTGYMCTS"): loc = "HEARSTGYMCTS HEARSTGYMCTS"
+
+        if (loc in single_names): loc = "<self> " + loc
         room_building = loc.split()
         if len(room_building) < 2:
             room_building_errors.append([f, cname, name, loc])
