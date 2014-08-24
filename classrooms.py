@@ -238,7 +238,7 @@ def building(name):
 def rooms(building_name):
     return building(building_name).rooms.values()
 
-def get_classes_in(buildingname):
+def get_classes_in(building_name):
     classes = []
     for r in rooms(building_name):
         classes.extend(r.classes)
