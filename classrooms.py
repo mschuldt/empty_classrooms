@@ -264,7 +264,7 @@ def all_class_names():
     for c in classes: x.add(c.class_name)
     return list(x)
 
-def sorted_classrooms(building_name = None):
+def sorted_classrooms(day, building_name = None):
     class_times = {}
 
     if building_name:
@@ -272,8 +272,9 @@ def sorted_classrooms(building_name = None):
     else:
         cls = classes
     for c in cls:
-        n = class_times.get(c.room, 0)
-        class_times[c.room] = n + c.length
+        if day in c.days:
+            n = class_times.get(c.room, 0)
+            class_times[c.room] = n + c.length
     x = list(class_times.iteritems())
     x.sort(key = lambda x: x[1])
     return x
