@@ -2,6 +2,7 @@ import bs4
 import subprocess
 import re
 import datetime
+from operator import add
 
 titles = []
 single_names = ["HEARSTGYMCTS","BECHTEL AUD", "WHEELER AUD"]
@@ -219,7 +220,7 @@ def extract_all():
     report()
 
 def count_classrooms():
-    return reduce(lambda a, b: a + b,  [len(buildings[x].rooms.keys()) for x in buildings])
+    return reduce(add, [len(buildings[x].rooms.keys()) for x in buildings])
 
 def report():
     print("classes: " + str(len(classes)))
