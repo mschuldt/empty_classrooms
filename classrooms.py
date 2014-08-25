@@ -20,9 +20,12 @@ def extract(filename):
 
     data = []
     for c in section_table.find_all("tr")[1:]:
-        x = c.find_all("td")
-        loc = x[3].text.strip().split('\n')[0]
-        data.append((x[0].text.strip(), x[2].text.strip(), loc));
+        td = c.find_all("td")
+        locations = [x.strip() for x in str(td[3].text).strip().split('\n')]
+        locations = filter(lambda x: x, locations)
+        times = [x.strip() for x in str(td[2].text).strip().split('\n')]
+        times = filter(lambda x: x, times)
+        data.append((td[0].text.strip(), times, locations));
     return title, data
 
 d = "/home/michael/Dropbox/fall_2014/"
@@ -205,12 +208,13 @@ def extract_all():
             extraction_errors.append(f)
             continue
         cname = data[0]
-        for name, time, loc in data[1]:
-            if not (name and time and loc):
+        for name, times, locations in data[1]:
+            if not (name and times and times[0] and locations and locations[0]):
                 sub_class_extraction_errors.append([f, name, time, loc])
                 continue
             #print("before add_class, buildings = " + str(buildings))
-            add_class(Class(cname, name, time, loc, f))
+            for time, loc in zip(times, locations):
+                add_class(Class(cname, name, time, loc, f))
             #print("after add_class, buildings = " + str(buildings))
     report()
 
