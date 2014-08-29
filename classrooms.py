@@ -190,11 +190,12 @@ class Building:
             self.n_rooms += 1
         r.add_class(c)
 
+data_loaded = False
 def extract_all():
     global buildings, classes
     global day_time_re_errors, room_building_errors, sub_class_extraction_errors
     global name_time_or_loc_errors, unreasonably_long_classes, extraction_errors
-    global negative_times
+    global negative_times, data_loaded
     day_time_re_errors = []
     room_building_errors = []
     name_time_or_loc_errors = []
@@ -218,6 +219,7 @@ def extract_all():
             for time, loc in zip(times, locations):
                 add_class(Class(cname, name, time, loc, f))
             #print("after add_class, buildings = " + str(buildings))
+    data_loaded = True
     report()
 
 def count_classrooms():
@@ -320,6 +322,9 @@ def print_class_list(classes):
 
 def interactive():
     global building,room,day,time
+    if not data_loaded:
+        print("wait. extracting data first...")
+        extract_all()
     pp = True
     def require_building():
         if not building:
