@@ -1,3 +1,5 @@
+#wget --wait=1 --random-wait --convert-links -r --level=2 -e robots=off -U mozilla https://schedulebuilder.berkeley.edu/explore/FL/2014/
+
 import bs4
 import subprocess
 import re
@@ -29,7 +31,9 @@ def extract(filename):
         data.append((td[0].text.strip(), times, locations));
     return title, data
 
-d = "/home/michael/Dropbox/fall_2014/"
+#d = "/home/michael/Dropbox/fall_2014/"
+d = "/home/michael/Desktop/schedulebuilder.berkeley.edu/explore/courses/FL/2014/"
+
 p = subprocess.Popen("ls " + d, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 files = map(lambda x: x.strip(), p.stdout.readlines())
 
@@ -213,7 +217,7 @@ def extract_all():
         cname = data[0]
         for name, times, locations in data[1]:
             if not (name and times and times[0] and locations and locations[0]):
-                sub_class_extraction_errors.append([f, name, time, loc])
+                sub_class_extraction_errors.append([f, name, times, locations])
                 continue
             #print("before add_class, buildings = " + str(buildings))
             for time, loc in zip(times, locations):
