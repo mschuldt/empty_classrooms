@@ -244,18 +244,24 @@ def building_names():
 def building(name):
     return buildings[name.upper()]
 
-def rooms(building_name):
-    return building(building_name).rooms.values()
+def valid_building(building_name):
+    return building_name.upper() in buildings
 
-def get_classes_in(building_name):
+def rooms_in_building(building_name):
+    name = building_name.upper()
+    return valid_building(name) and buildings[name].rooms.values()
+
+def classes_in_building(building_name, day = None):
     classes = []
-    for r in rooms(building_name):
-        classes.extend(r.classes)
+    day = day.upper() if day else None
+    for r in rooms_in_building(building_name):
+        classes.extend([c for c in r.classes if day in c.days]
+                       if day else r.classes)
     return classes
 
 def class_names_in(building_name):
     x = set()
-    for c in get_classes_in(building_name):
+    for c in classes_in_building(building_name):
         x.add(c.class_name)
     for c in x:
         print c
@@ -266,10 +272,10 @@ def all_class_names():
     return list(x)
 
 def sorted_classrooms(day, building_name = None):
+    day = day.lower()
     class_times = {}
-
     if building_name:
-        cls = get_classes_in(building_name)
+        cls = classes_in_building(building_name)
     else:
         cls = classes
     for c in cls:
@@ -280,10 +286,10 @@ def sorted_classrooms(day, building_name = None):
     x.sort(key = lambda x: x[1])
     return x
 
-def classes_in_room(building, room):
+def classes_in_room(building, room, day = None):
     ret = []
-    for c in get_classes_in(building):
-        if c.room == room:
+    for c in classes_in_building(building, day):
+        if (c.room == room):
             ret.append(c)
     return ret
 
