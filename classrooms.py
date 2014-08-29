@@ -310,3 +310,161 @@ def find_filename(class_name):
         if class_name in t[0]:
             ret.append(t)
     return ret
+
+building = room = day = time = None
+
+def print_class_list(classes):
+    classes.sort(key = lambda x: x.start_time.hour + x.start_time.minute/60.0)
+    for c in classes:
+        print "{}, {}, {}".format(c.text_time, c.name, c.class_name)
+
+def interactive():
+    global building,room,day,time
+    pp = True
+    def require_building():
+        if not building:
+            print ("Problem: you are not in a building")
+            return False
+        return True
+    def require_room():
+        if not room:
+            print ("Problem: you are not in a room.")
+            return False
+        return True
+    def require_day():
+        if not day:
+            print ("problem: I don't know what day it is")
+            return False
+        return True
+    def require_time():
+        if not time:
+            print ("problem: I don't know what time it is")
+            return False
+        return True
+    def print_location():
+        print("\nlocation: {} {}".format(room or "", building))
+        if time or day:
+            print("time:     {} {}".format(day or "", time or ""))
+
+    while True:
+        print_location()
+        e = False
+        command = raw_input("==> ")
+        cmd = command.lower().split()
+        args = cmd[1:]
+        cmd = cmd[0]
+        n = len(args)
+        if n == 0:
+            if cmd == "exit" or cmd == "q":
+                return
+            elif cmd == "buildings":
+                print(building_names())
+                continue
+
+            elif cmd == "rooms": #print rooms in 'building'
+                if not require_building(): continue
+                rooms = rooms_in_building(building)
+                for r in rooms:
+                    print r
+                print ("found {} rooms.".format(len(rooms)))
+                continue
+            elif cmd == "classes": # list classes in current building or room
+                if not building:
+                    #list classes in every building
+                    buildings =  building_names()
+                    for b in buildings:
+                        print ("Classes in building '{}':".format(b))
+                        print_class_list(classes_in_building(b, day))
+                    continue
+                if not require_building(): continue
+                if not room:
+                    #print all classes in building
+                    print_class_list(classes_in_building(building, day))
+                    continue
+                if not require_room(): continue
+                #print all classes in room
+                print_class_list(classes_in_room(building, room, day))
+                continue
+            elif cmd == "sorted":
+                #print list of classrooms sorted by utilization
+                if not require_day(): continue
+                for c in sorted_classrooms(day, building):
+                    print c
+                continue
+            elif cmd  == "..":
+                #leave the current room or building
+                if room:
+                    print ("left room: {}".format(room))
+                    room = None
+                elif building:
+                    print ("left building: {}".format(building))
+                    building = None
+                continue
+        if n == 1:
+            if cmd == "enter": #enter a building or classroom
+                place = args[0]
+                if building:
+                    options = map(lambda x: x.name, rooms_in_building(building))
+                    if place in options:
+                        room = place
+                    else:
+                        print ("'{}' is not a room, you may enter:\n {}"
+                               .format(place, ", ".join(options)))
+                else:
+                    options = building_names()
+                    if place in map(lambda x: x.lower(), options):
+                        building = place
+                    else:
+                        print ("'{}' is not a building, you may enter:\n {}"
+                               .format(place, ", ".join(options)))
+                continue
+            if cmd == "day": #change the current day
+                d = args[0]
+                if d == "any":
+                    day = None
+                    continue
+                if d == "th" or d == "thursday":
+                    d = "r"
+                elif len(d) > 3:
+                    d = d[0]
+                if d not in "mtwrfs":
+                    print ("Problem: I don't know what day '{}' is.".format(d))
+                    continue
+                day = d
+                continue
+            if cmd == "time": #change current time
+                #TODO: check that arg[0] is numeric
+                h = int(arg[0]) - 1
+                if h < 0 or h > 23:
+                    print ("Problem: hour '{%d}' does not look valid (mil time).")
+                    continue
+                time = datetime.time(hour=h)
+                continue
+        if n == 2:
+            if cmd == "time": #change current time
+                #TODO: check that arg[0] is numeric
+                h = int(arg[0]) - 1
+                m = int(arg[1]) - 1
+                if h < 0 or h > 23:
+                    print ("Problem: hour '{%d}' does not look valid (mil time).")
+                    e = True
+                if m < 0 or m > 59:
+                    print ("Problem: minute '{%d}' does not look valid (mil time).")
+                    e = True
+                if e: continue
+                time = datetime.time(hour=h, minute=m)
+
+        print("exec({}) =".format(command))
+        exec command in globals()
+
+i = interactive
+
+# sort_rooms:
+#      if room and day: list of classrooms sorted by utilization (assending order)
+
+# find_best_rooms:
+#      if building and day: list the rooms most available for the current day and time.
+
+
+
+
