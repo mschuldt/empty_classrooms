@@ -49,8 +49,9 @@ classes = []
 
 def to_mil_time(hour, minute, PM_p):
     hour = int(hour) + 12 if PM_p else int(hour)
-    minute = int(minute) if minute else 0
+    minute = int(minute) if minute else 1
     hour -= 1 #hours range: 0..23
+    minute -= 1#minouts range: 0..59
     return hour, minute
 
 n = 1
